@@ -226,7 +226,7 @@ open class PieRadarChartViewBase: ChartViewBase
         
         var minOffset = self.minOffset
         
-        if (self.isKind(of: RadarChartView.self))
+        if self is RadarChartView
         {
             let x = self.xAxis
             
@@ -366,14 +366,14 @@ open class PieRadarChartViewBase: ChartViewBase
     }
 
     /// - returns: The required offset for the chart legend.
-    @objc internal var requiredLegendOffset: CGFloat
+    internal var requiredLegendOffset: CGFloat
     {
         fatalError("requiredLegendOffset cannot be called on PieRadarChartViewBase")
     }
 
     /// - returns: The base offset needed for the chart without calculating the
     /// legend size.
-    @objc internal var requiredBaseOffset: CGFloat
+    internal var requiredBaseOffset: CGFloat
     {
         fatalError("requiredBaseOffset cannot be called on PieRadarChartViewBase")
     }
@@ -481,7 +481,7 @@ open class PieRadarChartViewBase: ChartViewBase
     fileprivate var _decelerationDisplayLink: NSUIDisplayLink!
     fileprivate var _decelerationAngularVelocity: CGFloat = 0.0
     
-    @objc internal final func processRotationGestureBegan(location: CGPoint)
+    internal final func processRotationGestureBegan(location: CGPoint)
     {
         self.resetVelocity()
         
@@ -495,7 +495,7 @@ open class PieRadarChartViewBase: ChartViewBase
         _rotationGestureStartPoint = location
     }
     
-    @objc internal final func processRotationGestureMoved(location: CGPoint)
+    internal final func processRotationGestureMoved(location: CGPoint)
     {
         if isDragDecelerationEnabled
         {
@@ -518,7 +518,7 @@ open class PieRadarChartViewBase: ChartViewBase
         }
     }
     
-    @objc internal final func processRotationGestureEnded(location: CGPoint)
+    internal final func processRotationGestureEnded(location: CGPoint)
     {
         if isDragDecelerationEnabled
         {
@@ -537,7 +537,7 @@ open class PieRadarChartViewBase: ChartViewBase
         }
     }
     
-    @objc internal final func processRotationGestureCancelled()
+    internal final func processRotationGestureCancelled()
     {
         if _isRotating
         {
@@ -553,13 +553,9 @@ open class PieRadarChartViewBase: ChartViewBase
         {
             stopDeceleration()
             
-            if !rotationWithTwoFingers
+            if !rotationWithTwoFingers, let touchLocation = touches.first?.location(in: self)
             {
-                let touch = touches.first as NSUITouch!
-                
-                let touchLocation = touch?.location(in: self)
-                
-                processRotationGestureBegan(location: touchLocation!)
+                processRotationGestureBegan(location: touchLocation)
             }
         }
         
@@ -571,13 +567,10 @@ open class PieRadarChartViewBase: ChartViewBase
     
     open override func nsuiTouchesMoved(_ touches: Set<NSUITouch>, withEvent event: NSUIEvent?)
     {
-        if rotationEnabled && !rotationWithTwoFingers
+        if rotationEnabled && !rotationWithTwoFingers, let touch = touches.first
         {
-            let touch = touches.first as NSUITouch!
-            
-            let touchLocation = touch?.location(in: self)
-            
-            processRotationGestureMoved(location: touchLocation!)
+            let touchLocation = touch.location(in: self)
+            processRotationGestureMoved(location: touchLocation)
         }
         
         if !_isRotating
@@ -593,13 +586,10 @@ open class PieRadarChartViewBase: ChartViewBase
             super.nsuiTouchesEnded(touches, withEvent: event)
         }
         
-        if rotationEnabled && !rotationWithTwoFingers
+        if rotationEnabled && !rotationWithTwoFingers, let touch = touches.first
         {
-            let touch = touches.first as NSUITouch!
-            
-            let touchLocation = touch?.location(in: self)
-            
-            processRotationGestureEnded(location: touchLocation!)
+            let touchLocation = touch.location(in: self)
+            processRotationGestureEnded(location: touchLocation)
         }
         
         if _isRotating
